@@ -1,0 +1,57 @@
+<main class="page">
+  <header class="hero">
+    <div class="hero-mark">SR</div>
+    <div>
+      <p class="eyebrow">TU PROGRESO, A TU RITMO</p>
+      <h1>Seguimiento de Retos</h1>
+      <p class="subtitle">Convierte tus objetivos en avances concretos.</p>
+    </div>
+  </header>
+
+  <section class="content-grid">
+    <form class="panel create-panel" (ngSubmit)="crear()">
+      <div class="section-heading">
+        <div><p class="eyebrow">EMPIEZA ALGO NUEVO</p><h2>Crear reto</h2></div>
+        <span class="plus">+</span>
+      </div>
+      <label for="titulo">Nombre del reto</label>
+      <input id="titulo" name="titulo" [(ngModel)]="formulario.titulo" required maxlength="150" placeholder="Ej. Leer 20 minutos al día" />
+      <label for="descripcion">Descripción <span class="optional">(opcional)</span></label>
+      <textarea id="descripcion" name="descripcion" [(ngModel)]="formulario.descripcion" rows="3" placeholder="¿Qué quieres lograr?"></textarea>
+      <div class="form-row">
+        <div><label for="fecha">Fecha límite <span class="optional">(opcional)</span></label><input id="fecha" name="fecha_limite" type="date" [(ngModel)]="formulario.fecha_limite" /></div>
+        <div><label for="estado">Estado inicial</label><select id="estado" name="estado" [(ngModel)]="formulario.estado"><option value="pendiente">Pendiente</option><option value="en_progreso">En progreso</option><option value="completado">Completado</option></select></div>
+      </div>
+      <ion-button type="submit" expand="block" [disabled]="guardando() || !formulario.titulo.trim()">{{ guardando() ? 'Guardando…' : 'Agregar reto' }}</ion-button>
+    </form>
+
+    <section class="panel list-panel">
+      <div class="section-heading list-heading">
+        <div><p class="eyebrow">PASO A PASO</p><h2>Mis retos <span class="count">{{ retos().length }}</span></h2></div>
+        <button class="refresh" type="button" (click)="cargar()" aria-label="Actualizar lista">↻</button>
+      </div>
+      @if (error()) { <div class="error" role="alert">{{ error() }}</div> }
+      @if (cargando()) {
+        <p class="empty">Cargando tus retos…</p>
+      } @else if (retos().length === 0) {
+        <div class="empty-state"><span>✦</span><h3>Aquí empieza tu siguiente logro</h3><p>Crea tu primer reto con el formulario.</p></div>
+      } @else {
+        <div class="reto-list">
+          @for (reto of retos(); track reto.id) {
+            <article class="reto-card" [class.done]="reto.estado === 'completado'">
+              <div class="reto-top">
+                <div class="reto-copy"><h3>{{ reto.titulo }}</h3>@if (reto.descripcion) { <p>{{ reto.descripcion }}</p> }</div>
+                <button class="delete" type="button" (click)="eliminar(reto)" [attr.aria-label]="'Eliminar ' + reto.titulo">×</button>
+              </div>
+              <div class="reto-bottom">
+                @if (reto.fecha_limite) { <span class="due">Fecha límite: {{ reto.fecha_limite }}</span> } @else { <span class="due">Sin fecha límite</span> }
+                <select [value]="reto.estado" (change)="cambiarEstado(reto, $event)" [attr.aria-label]="'Estado de ' + reto.titulo"><option value="pendiente">Pendiente</option><option value="en_progreso">En progreso</option><option value="completado">Completado</option></select>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </section>
+  <footer>Un reto a la vez. Cada avance cuenta.</footer>
+</main>
