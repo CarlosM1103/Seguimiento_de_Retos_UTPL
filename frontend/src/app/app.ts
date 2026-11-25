@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IonButton } from '@ionic/angular';
@@ -13,6 +13,7 @@ import { EstadoReto, Reto, Semaforo, TareaSemanal } from './reto.model';
 })
 export class App implements OnInit {
   private readonly service = inject(RetosService);
+  private readonly detalle = viewChild.required<ElementRef<HTMLElement>>('detalle');
   readonly retos = signal<Reto[]>([]);
   readonly alertas = signal<TareaSemanal[]>([]);
   readonly seleccionado = signal<Reto | null>(null);
@@ -83,7 +84,12 @@ export class App implements OnInit {
     });
   }
 
-  seleccionar(reto: Reto): void { this.seleccionado.set(reto); this.mensaje.set(''); }
+  seleccionar(reto: Reto): void {
+    this.seleccionado.set(reto);
+    this.mensaje.set('');
+    this.detalle().nativeElement.focus({ preventScroll: true });
+    this.detalle().nativeElement.scrollIntoView({ block: 'start' });
+  }
 
   abrirAlerta(alerta: TareaSemanal): void {
     const reto = this.retos().find((item) => item.id === alerta.reto);

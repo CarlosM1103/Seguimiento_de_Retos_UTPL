@@ -43,13 +43,13 @@ La siguiente captura muestra la aplicación instalada en el emulador. Presenta t
 
 ![Aplicación funcionando en Android](evidencias/android-conexion-corregida.png)
 
-También se guardó una captura actualizada del emulador con la misma información del panel:
+La versión de entrega también se probó en un Nexus 5 virtual con Android 11. Al pulsar una alerta se abre el detalle del reto, donde aparecen sus semanas y las recomendaciones.
 
-![Aplicación funcionando en Android](evidencias/android-funcionando.png)
+![Detalle semanal en el Nexus 5](evidencias/android-nexus-detalle.png)
 
 ### Evidencia de la APK
 
-La compilación terminó con `BUILD SUCCESSFUL`. La APK se generó en `frontend/android/app/build/outputs/apk/debug/app-debug.apk` y se instaló en el emulador `Seguimiento_API_36`.
+La compilación terminó con `BUILD SUCCESSFUL`. La APK se generó en `frontend/android/app/build/outputs/apk/debug/app-debug.apk` y la versión de entrega se instaló en el emulador `Seguimiento_Basico`.
 
 ### Evidencia de pruebas
 
@@ -59,7 +59,7 @@ Se ejecutaron las siguientes verificaciones:
 | --- | --- |
 | `python manage.py check --database default` | Sin errores. |
 | `python manage.py test retos -v 2` | 5 pruebas ejecutadas correctamente. |
-| `npm run build` | Compilación terminada sin errores. |
+| `npm run build` | Compilación terminada con avisos de compatibilidad y tamaño. |
 | `npm test -- --watch=false` | 2 pruebas aprobadas. |
 | `gradlew.bat assembleDebug` | APK generada correctamente. |
 

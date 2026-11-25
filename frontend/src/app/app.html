@@ -75,7 +75,7 @@
       }
     </aside>
 
-    <section class="panel detail-panel">
+    <section #detalle class="panel detail-panel" tabindex="-1" aria-label="Detalle del reto">
       @if (seleccionado(); as reto) {
         <div class="detail-heading">
           <div><p class="eyebrow">DETALLE DEL RETO</p><h2>{{ reto.titulo }}</h2><p>{{ reto.descripcion || 'Registra el porcentaje y una nota corta para cada semana.' }}</p></div>

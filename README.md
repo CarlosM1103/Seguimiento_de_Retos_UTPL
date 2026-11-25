@@ -1,6 +1,6 @@
 # Seguimiento de Retos
 
-Aplicación para organizar retos personales y registrar su progreso semanal. El proyecto usa Django REST Framework, MySQL, Angular, Ionic y Capacitor para funcionar en la web y en Android.
+Proyecto individual del parcial B1 de Ingeniería Web, UTPL. La aplicación permite registrar el progreso semanal de un reto desde la web y Android. Usa Django REST Framework, MySQL, Angular, Ionic y Capacitor.
 
 ## Qué hace la aplicación
 
@@ -15,24 +15,26 @@ Aplicación para organizar retos personales y registrar su progreso semanal. El 
 
 La funcionalidad adicional se llama **Panel de seguimiento y recomendaciones**. En la parte superior aparecen el total de retos, las semanas verdes, amarillas y rojas, además del promedio general. Cada semana también presenta una recomendación según el porcentaje registrado. Por ejemplo, si una semana está en amarillo, la app indica cuántos puntos faltan para llegar a verde. Si está en rojo, explica cuánto falta para salir de esa situación.
 
-Elegí esta función porque no solo presenta datos: ayuda a tomar una decisión sobre el siguiente avance. Está conectada al backend, se actualiza al guardar una semana y funciona igual en la web y en la app Android.
+Las recomendaciones ayudan a decidir cuánto avanzar antes de la siguiente revisión. El panel se actualiza al guardar una semana y funciona en la web y Android.
 
 ## Ejecutar el proyecto
 
-Abre la carpeta `C:\Users\CDML\proyectos\SeguimientoRetos` en Visual Studio Code.
-
-En una terminal inicia Django:
+Desde la raíz del repositorio, prepara Django. Necesitas una base MySQL creada y un usuario con acceso. Copia `backend/.env.example` como `backend/.env` y completa los valores de tu equipo.
 
 ```powershell
-Set-Location "$env:USERPROFILE\proyectos\SeguimientoRetos\backend"
+Set-Location backend
+py -3.12 -m venv .venv
 . .\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python manage.py migrate
 python manage.py runserver 0.0.0.0:8000
 ```
 
 En otra terminal inicia la web:
 
 ```powershell
-Set-Location "$env:USERPROFILE\proyectos\SeguimientoRetos\frontend"
+Set-Location frontend
+npm.cmd ci
 npm.cmd start -- --host 0.0.0.0 --port 8100
 ```
 
@@ -43,7 +45,7 @@ Abre `http://127.0.0.1:8100/` o `http://localhost:8100/`.
 Con el emulador iniciado y Django activo:
 
 ```powershell
-Set-Location "$env:USERPROFILE\proyectos\SeguimientoRetos\frontend"
+Set-Location frontend
 npm.cmd run build
 npx.cmd cap sync android
 Set-Location .\android
@@ -61,7 +63,8 @@ frontend\android\app\build\outputs\apk\debug\app-debug.apk
 Backend:
 
 ```powershell
-Set-Location "$env:USERPROFILE\proyectos\SeguimientoRetos\backend"
+Set-Location backend
+. .\.venv\Scripts\Activate.ps1
 python manage.py check --database default
 python manage.py test retos -v 2
 ```
@@ -69,9 +72,11 @@ python manage.py test retos -v 2
 Frontend:
 
 ```powershell
-Set-Location "$env:USERPROFILE\proyectos\SeguimientoRetos\frontend"
+Set-Location frontend
 npm.cmd run build
 npm.cmd test -- --watch=false
 ```
 
 Las pruebas incluyen la creación de las semanas 7 a 15 y el rechazo de cambios en una semana cerrada.
+
+Consulta las [evidencias de la entrega](documentacion/entrega-b1.md) para ver el panel en la web y el emulador.
