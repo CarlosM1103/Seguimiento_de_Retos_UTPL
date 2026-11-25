@@ -30,3 +30,26 @@ class RetoApiTests(APITestCase):
         respuesta = self.client.post(reverse('avance-list'), datos, format='json')
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('porcentaje', respuesta.data)
+
+    def test_crear_reto_genera_semanas_7_a_15(self):
+        reto = Reto.objects.create(titulo='Aprender Angular', fecha_inicio=date(2026, 11, 18))
+        semanas = list(reto.tareas.values_list('semana', flat=True))
+        self.assertEqual(semanas, list(range(7, 16)))
+
+    def test_semana_cerrada_rechaza_cambios_y_avisa_si_esta_en_rojo(self):
+        reto = Reto.objects.create(titulo='Practicar inglés', fecha_inicio=date(2026, 11, 18))
+        tarea = reto.tareas.get(semana=7)
+        tarea.porcentaje = 45
+        tarea.save()
+
+        cierre = self.client.post(reverse('tareasemanal-cerrar', args=[tarea.id]), format='json')
+        self.assertEqual(cierre.status_code, status.HTTP_200_OK)
+        self.assertEqual(cierre.data['semaforo'], 'ROJO')
+        self.assertIn('rojo', cierre.data['aviso'].lower())
+
+        cambio = self.client.patch(
+            reverse('tareasemanal-detail', args=[tarea.id]),
+            {'porcentaje': 80},
+            format='json',
+        )
+        self.assertEqual(cambio.status_code, status.HTTP_400_BAD_REQUEST)

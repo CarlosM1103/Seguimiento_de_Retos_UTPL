@@ -34,6 +34,6 @@ STATIC_URL='static/'
 DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
 REST_FRAMEWORK={'DEFAULT_SCHEMA_CLASS':'drf_spectacular.openapi.AutoSchema','DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend','rest_framework.filters.SearchFilter','rest_framework.filters.OrderingFilter'],'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.PageNumberPagination','PAGE_SIZE':20}
 SPECTACULAR_SETTINGS={'TITLE':'API Seguimiento de Retos','DESCRIPTION':'Backend Django REST del proyecto Seguimiento de Retos.','VERSION':'1.0.0'}
-CORS_ALLOWED_ORIGINS=lista('CORS_ALLOWED_ORIGINS','http://localhost:8100,http://localhost:4200,https://localhost')
+CORS_ALLOWED_ORIGINS=lista('CORS_ALLOWED_ORIGINS','http://localhost:8100,http://localhost:4200,http://localhost,http://10.0.2.2:8100,https://localhost')
 
 

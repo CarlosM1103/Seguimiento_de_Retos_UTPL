@@ -1,57 +1,111 @@
 <main class="page">
   <header class="hero">
-    <div class="hero-mark">SR</div>
+    <div class="brand-mark" aria-hidden="true">SR</div>
     <div>
-      <p class="eyebrow">TU PROGRESO, A TU RITMO</p>
+      <p class="eyebrow">SEGUIMIENTO SEMANAL</p>
       <h1>Seguimiento de Retos</h1>
-      <p class="subtitle">Convierte tus objetivos en avances concretos.</p>
+      <p class="subtitle">Organiza tus retos, registra el avance y revisa el semáforo de cada semana.</p>
     </div>
   </header>
 
-  <section class="content-grid">
+  <section class="metrics" aria-label="Resumen del progreso">
+    <article><span>Retos activos</span><strong>{{ resumen().total }}</strong></article>
+    <article class="metric-green"><span>Semanas verdes</span><strong>{{ resumen().verde }}</strong></article>
+    <article class="metric-yellow"><span>Semanas amarillas</span><strong>{{ resumen().amarillo }}</strong></article>
+    <article class="metric-red"><span>Semanas rojas</span><strong>{{ resumen().rojo }}</strong></article>
+    <article class="metric-average"><span>Promedio general</span><strong>{{ resumen().promedio }}%</strong></article>
+  </section>
+
+  @if (mensaje()) { <p class="feedback success" role="status">{{ mensaje() }}</p> }
+  @if (error()) { <p class="feedback error" role="alert">{{ error() }}</p> }
+
+  <section class="top-grid">
     <form class="panel create-panel" (ngSubmit)="crear()">
-      <div class="section-heading">
-        <div><p class="eyebrow">EMPIEZA ALGO NUEVO</p><h2>Crear reto</h2></div>
-        <span class="plus">+</span>
-      </div>
-      <label for="titulo">Nombre del reto</label>
-      <input id="titulo" name="titulo" [(ngModel)]="formulario.titulo" required maxlength="150" placeholder="Ej. Leer 20 minutos al día" />
-      <label for="descripcion">Descripción <span class="optional">(opcional)</span></label>
-      <textarea id="descripcion" name="descripcion" [(ngModel)]="formulario.descripcion" rows="3" placeholder="¿Qué quieres lograr?"></textarea>
+      <div class="panel-title"><div><p class="eyebrow">NUEVO OBJETIVO</p><h2>Crear reto</h2></div><span>+</span></div>
+      <label for="titulo">Título del reto</label>
+      <input id="titulo" name="titulo" [(ngModel)]="formulario.titulo" maxlength="150" required placeholder="Ej. Leer 10 libros" />
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" name="descripcion" [(ngModel)]="formulario.descripcion" rows="3" placeholder="Define qué quieres conseguir"></textarea>
       <div class="form-row">
-        <div><label for="fecha">Fecha límite <span class="optional">(opcional)</span></label><input id="fecha" name="fecha_limite" type="date" [(ngModel)]="formulario.fecha_limite" /></div>
-        <div><label for="estado">Estado inicial</label><select id="estado" name="estado" [(ngModel)]="formulario.estado"><option value="pendiente">Pendiente</option><option value="en_progreso">En progreso</option><option value="completado">Completado</option></select></div>
+        <div><label for="inicio">Fecha de inicio</label><input id="inicio" name="inicio" [(ngModel)]="formulario.fecha_inicio" type="date" required /></div>
+        <div><label for="fin">Fecha final</label><input id="fin" name="fin" [(ngModel)]="formulario.fecha_fin" type="date" /></div>
       </div>
-      <ion-button type="submit" expand="block" [disabled]="guardando() || !formulario.titulo.trim()">{{ guardando() ? 'Guardando…' : 'Agregar reto' }}</ion-button>
+      <ion-button type="submit" expand="block" [disabled]="guardando() || !formulario.titulo.trim()">
+        {{ guardando() ? 'Guardando...' : 'Crear reto' }}
+      </ion-button>
+      <p class="form-help">Al crear un reto se preparan automáticamente las semanas 7 a 15.</p>
     </form>
 
-    <section class="panel list-panel">
-      <div class="section-heading list-heading">
-        <div><p class="eyebrow">PASO A PASO</p><h2>Mis retos <span class="count">{{ retos().length }}</span></h2></div>
-        <button class="refresh" type="button" (click)="cargar()" aria-label="Actualizar lista">↻</button>
-      </div>
-      @if (error()) { <div class="error" role="alert">{{ error() }}</div> }
-      @if (cargando()) {
-        <p class="empty">Cargando tus retos…</p>
-      } @else if (retos().length === 0) {
-        <div class="empty-state"><span>✦</span><h3>Aquí empieza tu siguiente logro</h3><p>Crea tu primer reto con el formulario.</p></div>
+    <section class="panel alert-panel">
+      <div class="panel-title"><div><p class="eyebrow">ATENCIÓN</p><h2>Alertas</h2></div><span class="alert-count">{{ alertas().length }}</span></div>
+      @if (alertas().length === 0) {
+        <div class="empty"><span>✓</span><p>No hay semanas en rojo. Sigue registrando tus avances.</p></div>
       } @else {
-        <div class="reto-list">
-          @for (reto of retos(); track reto.id) {
-            <article class="reto-card" [class.done]="reto.estado === 'completado'">
-              <div class="reto-top">
-                <div class="reto-copy"><h3>{{ reto.titulo }}</h3>@if (reto.descripcion) { <p>{{ reto.descripcion }}</p> }</div>
-                <button class="delete" type="button" (click)="eliminar(reto)" [attr.aria-label]="'Eliminar ' + reto.titulo">×</button>
-              </div>
-              <div class="reto-bottom">
-                @if (reto.fecha_limite) { <span class="due">Fecha límite: {{ reto.fecha_limite }}</span> } @else { <span class="due">Sin fecha límite</span> }
-                <select [value]="reto.estado" (change)="cambiarEstado(reto, $event)" [attr.aria-label]="'Estado de ' + reto.titulo"><option value="pendiente">Pendiente</option><option value="en_progreso">En progreso</option><option value="completado">Completado</option></select>
-              </div>
-            </article>
+        <div class="alert-list">
+          @for (alerta of alertas(); track alerta.id) {
+            <button type="button" class="alert-item" (click)="abrirAlerta(alerta)">
+              <b>Semana {{ alerta.semana }} · {{ alerta.reto_titulo }}</b>
+              <span>{{ alerta.porcentaje }}% · {{ alerta.cerrada ? 'Cerrada' : 'Pendiente' }}</span>
+            </button>
           }
         </div>
       }
     </section>
   </section>
-  <footer>Un reto a la vez. Cada avance cuenta.</footer>
+
+  <section class="workspace">
+    <aside class="panel retos-panel">
+      <div class="panel-title"><div><p class="eyebrow">MIS RETOS</p><h2>Lista de retos</h2></div><span class="badge">{{ retos().length }}</span></div>
+      <input class="search" type="search" placeholder="Buscar por título o descripción" (input)="buscar($event)" />
+      @if (cargando()) {
+        <p class="empty-text">Cargando retos...</p>
+      } @else if (retos().length === 0) {
+        <p class="empty-text">Todavía no hay retos que mostrar.</p>
+      } @else {
+        <div class="reto-list">
+          @for (reto of retos(); track reto.id) {
+            <button type="button" class="reto-card" [class.selected]="seleccionado()?.id === reto.id" (click)="seleccionar(reto)">
+              <span class="reto-state" [class]="reto.estado.toLowerCase()">{{ etiquetaEstado(reto.estado) }}</span>
+              <strong>{{ reto.titulo }}</strong>
+              <small>{{ reto.descripcion || 'Sin descripción' }}</small>
+              <div><span>Promedio semanal</span><b>{{ promedioReto(reto) }}%</b></div>
+            </button>
+          }
+        </div>
+      }
+    </aside>
+
+    <section class="panel detail-panel">
+      @if (seleccionado(); as reto) {
+        <div class="detail-heading">
+          <div><p class="eyebrow">DETALLE DEL RETO</p><h2>{{ reto.titulo }}</h2><p>{{ reto.descripcion || 'Registra el porcentaje y una nota corta para cada semana.' }}</p></div>
+          <span class="progress-number">{{ promedioReto(reto) }}%</span>
+        </div>
+        <div class="week-grid">
+          @for (tarea of reto.tareas; track tarea.id) {
+            <article class="week-card" [class.cerrada]="tarea.cerrada">
+              <div class="week-top"><strong>Semana {{ tarea.semana }}</strong><span class="semaforo" [class]="tarea.semaforo.toLowerCase()">{{ tarea.semaforo }}</span></div>
+              <label [for]="'porcentaje-' + tarea.id">Avance</label>
+              <div class="percentage-input"><input [id]="'porcentaje-' + tarea.id" [name]="'porcentaje-' + tarea.id" type="number" min="0" max="100" [(ngModel)]="tarea.porcentaje" [disabled]="tarea.cerrada" /><span>%</span></div>
+              <label [for]="'nota-' + tarea.id">Registro</label>
+              <input [id]="'nota-' + tarea.id" [name]="'nota-' + tarea.id" maxlength="255" [(ngModel)]="tarea.nota" [disabled]="tarea.cerrada" placeholder="Qué avanzaste" />
+              <p class="recommendation">{{ tarea.recomendacion }}</p>
+              @if (tarea.cerrada) {
+                <p class="closed-label">Semana cerrada</p>
+              } @else {
+                <div class="week-actions">
+                  <button type="button" (click)="guardarTarea(tarea)" [disabled]="tareaEnProceso() === tarea.id">Guardar</button>
+                  <button type="button" class="close-week" (click)="cerrarSemana(tarea)" [disabled]="tareaEnProceso() === tarea.id">Cerrar</button>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="empty detail-empty"><span>◎</span><h2>Selecciona un reto</h2><p>Desde aquí podrás registrar el avance de las semanas 7 a 15.</p></div>
+      }
+    </section>
+  </section>
+
+  <footer>Proyecto individual · Seguimiento de Retos</footer>
 </main>

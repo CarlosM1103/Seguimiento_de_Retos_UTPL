@@ -1,26 +1,45 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { NuevoReto, Reto } from './reto.model';
+import { Capacitor } from '@capacitor/core';
+import { map, Observable } from 'rxjs';
+import { CierreTarea, NuevoReto, PaginaApi, Reto, TareaSemanal } from './reto.model';
 
 @Injectable({ providedIn: 'root' })
 export class RetosService {
   private readonly http = inject(HttpClient);
-  private readonly url = 'http://localhost:8000/api/retos/';
+  private readonly api = Capacitor.isNativePlatform()
+    ? 'http://10.0.2.2:8000/api'
+    : 'http://127.0.0.1:8000/api';
 
-  listar(): Observable<Reto[]> {
-    return this.http.get<Reto[]>(this.url);
+  listarRetos(busqueda = ''): Observable<Reto[]> {
+    const consulta = busqueda ? `?search=${encodeURIComponent(busqueda)}` : '';
+    return this.http.get<PaginaApi<Reto> | Reto[]>(`${this.api}/retos/${consulta}`).pipe(
+      map((respuesta) => Array.isArray(respuesta) ? respuesta : respuesta.results),
+    );
   }
 
-  crear(reto: NuevoReto): Observable<Reto> {
-    return this.http.post<Reto>(this.url, reto);
+  crearReto(reto: NuevoReto): Observable<Reto> {
+    return this.http.post<Reto>(`${this.api}/retos/`, reto);
   }
 
-  actualizar(id: number, cambios: Partial<NuevoReto>): Observable<Reto> {
-    return this.http.patch<Reto>(`${this.url}${id}/`, cambios);
+  actualizarReto(id: number, cambios: Partial<NuevoReto>): Observable<Reto> {
+    return this.http.patch<Reto>(`${this.api}/retos/${id}/`, cambios);
   }
 
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.url}${id}/`);
+  actualizarTarea(tarea: TareaSemanal): Observable<TareaSemanal> {
+    return this.http.patch<TareaSemanal>(`${this.api}/tareas/${tarea.id}/`, {
+      porcentaje: tarea.porcentaje,
+      nota: tarea.nota,
+    });
+  }
+
+  cerrarTarea(id: number): Observable<CierreTarea> {
+    return this.http.post<CierreTarea>(`${this.api}/tareas/${id}/cerrar/`, {});
+  }
+
+  listarAlertas(): Observable<TareaSemanal[]> {
+    return this.http.get<PaginaApi<TareaSemanal> | TareaSemanal[]>(`${this.api}/alertas/`).pipe(
+      map((respuesta) => Array.isArray(respuesta) ? respuesta : respuesta.results),
+    );
   }
 }
