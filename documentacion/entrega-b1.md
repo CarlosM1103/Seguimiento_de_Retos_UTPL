@@ -31,11 +31,21 @@ Esta funcionalidad aporta una guía práctica para continuar el reto. No se limi
 
 ## Evidencias
 
+### Evidencia web
+
+La aplicación web funciona en `http://127.0.0.1:8100/` y consulta la API local de Django. La captura muestra el panel de seguimiento, el formulario de creación y las alertas de semanas en rojo.
+
+![Aplicación funcionando en la web](evidencias/web-funcionando.png)
+
 ### Evidencia Android
 
 La siguiente captura muestra la aplicación instalada en el emulador. Presenta tres retos, una semana verde, una amarilla y las semanas en rojo que aparecen en el panel de resumen.
 
 ![Aplicación funcionando en Android](evidencias/android-conexion-corregida.png)
+
+También se guardó una captura actualizada del emulador con la misma información del panel:
+
+![Aplicación funcionando en Android](evidencias/android-funcionando.png)
 
 ### Evidencia de la APK
 
